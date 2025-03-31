@@ -222,6 +222,8 @@ resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins-sg"
   description = "Allow SSH and Jenkins"
 
+  vpc_id = aws_vpc.main.id
+
   ingress {
     description = "SSH"
     from_port   = 22
