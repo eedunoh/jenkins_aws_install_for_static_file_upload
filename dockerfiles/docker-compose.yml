@@ -1,0 +1,50 @@
+# Define the services to be run in this Docker Compose setup
+services:
+  
+  # First service: jenkins-docker
+  jenkins-docker:
+    image: docker:dind             # Use the Docker-in-Docker (dind) image; allows Docker daemon to run inside a container
+    container_name: jenkins-docker  # Name of the container instance
+    privileged: true               # Give extended privileges to this container (required for dind to work properly)
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs  # Environment variable specifying where to store TLS certs for secure Docker daemon
+    volumes:
+      - jenkins-docker-certs:/certs/client  # Shared volume for Docker TLS certificates
+      - jenkins-data:/var/jenkins_home      # Shared Jenkins data volume (even though it's more common on the Jenkins service)
+    ports:
+      - "2376:2376"                # Expose Docker daemon port securely (used by Jenkins to talk to this Docker daemon)
+    networks:
+      jenkins:                     # Attach this container to the 'jenkins' custom network
+        aliases:
+          - docker                 # Alias so other services can refer to it as "docker"
+    command: --storage-driver overlay2   # Command to run the Docker daemon with a specific storage driver
+
+  # Second service: my-jenkins
+  my-jenkins:
+    image: my-jenkins              # The Jenkins image to run (custom image, likely from the Dockerfile in current dir)
+    build:                         # Build configuration for the custom Jenkins image
+      context: .                   # Build the image from the current directory (look for a Dockerfile here)
+    container_name: my-jenkins     # Name of the container instance
+    restart: on-failure            # Restart policy: restart this container automatically if it crashes (on failure)
+    environment:
+      - DOCKER_HOST=tcp://docker:2376     # Tell Jenkins where the Docker daemon lives (the jenkins-docker service)
+      - DOCKER_CERT_PATH=/certs/client    # Path to the TLS certs so Jenkins can securely connect to the Docker daemon
+      - DOCKER_TLS_VERIFY=1               # Enforce TLS verification when Jenkins talks to Docker daemon
+    volumes:
+      - /home/ec2-user/jenkins_install:/var/jenkins_home    # Mount persistent Jenkins home directory to preserve data (jobs, configs, etc.)
+      - jenkins-docker-certs:/certs/client:ro  # Mount the certs directory (read-only) so Jenkins can authenticate to Docker
+    ports:
+      - "8080:8080"               # Expose Jenkins UI on port 8080 (web interface)
+      - "50000:50000"             # Expose port 50000 for Jenkins agents (JNLP)
+    networks:
+      - jenkins                   # Attach this container to the 'jenkins' custom network
+
+# Define the custom network used by both services
+networks:
+  jenkins:
+    driver: bridge                # Use bridge driver (default network driver)
+
+# Define named volumes to persist data between container restarts
+volumes:
+  jenkins-docker-certs:           # Volume to store Docker daemon TLS certificates
+  jenkins-data:                   # Volume to persist Jenkins data (jobs, configs, etc.)
