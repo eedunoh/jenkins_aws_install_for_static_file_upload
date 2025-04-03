@@ -1,5 +1,5 @@
 # jenkins_aws_install_for_static_file_upload
-A repository that contains terraform files for provisioning a new AWS VPC with public and private subnets, route tables, a NAT Gateway, an Internet Gateway to support the deployment infrastructure and an EC2 instance. It installs Jenkins and sets it up as a CI/CD automation server for deploying applications and AWS resources.
+A repository that contains terraform files for provisioning a new AWS VPC with public and private subnets, route tables, a NAT Gateway, an Internet Gateway and an EC2 instance. It installs Jenkins and sets it up as a CI/CD automation server for deploying applications and AWS resources.
 
 
 ## Project Structure
@@ -16,12 +16,13 @@ A repository that contains terraform files for provisioning a new AWS VPC with p
 - **jenkins_iam_role_and_policy.tf**: Defines the IAM role and policies for Jenkins to interact with other AWS services securely (e.g., EC2 accessing S3 to store Terraform state files).
   
 - **main.tf**: The main Terraform configuration file, used for provisioning AWS infrastructure:
-  - EC2 instance that will host Jenkins
   - networking and security:
     - a new AWS VPC with public and private subnets
     - route tables
     - a NAT Gateway
     - an Internet Gateway 
-  - S3 for remote backend
+  - EC2 instance to host Jenkins
+  - Security group for Jenkins
+  - S3 remote backend for storing Terraform state files
  
 - [Terraform-AWS resources configuration Guide](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
