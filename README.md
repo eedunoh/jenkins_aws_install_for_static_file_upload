@@ -1,5 +1,5 @@
 # jenkins_aws_install_for_static_file_upload
-A repository that contains terraform files for provisioning a new AWS VPC with public and private subnets, route tables, a NAT Gateway, an Internet Gateway and an EC2 instance. It installs Jenkins and sets it up as a CI/CD automation server for deploying applications and AWS resources.
+This repository contains terraform and docker files for provisioning a new AWS VPC with public and private subnets, route tables, a NAT Gateway, an Internet Gateway and an EC2 instance. It installs Jenkins and sets it up as a CI/CD automation server for deploying applications and AWS resources.
 
 
 ## Project Structure
